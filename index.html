@@ -4,10 +4,67 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=750, initial-scale=1">
         <title>Calculator</title>
-        <script src="./calculator.js" async> </script>    
+        <!-- <script type="module" src="https://cdn.skypack.dev/twind/shim"></script> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@unocss/reset/tailwind.min.css">
+        <script  async> 
+          void (async ()=>{
+            globalThis.hybrids = await import('https://www.unpkg.com/hybrids@8.0.8/src/index.js')
+            await import('./calculator.js')
+            await import('./flex-row.js')
+            
+            window.__unocss = {
+              // rules: [
+              //   // custom rules...
+              // ],
+              // presets: [
+              //   // custom presets...
+              // ],
+              shortcuts: [
+                {
+                  'frow-g2': 'flex flex-row justify-between gap-2',
+                  'btn': 'py-2 px-4 font-semibold rounded-lg shadow-md',
+                },
+                // dynamic shortcuts:
+                // [/^btn-(.*)$/, ([, c]) => `bg-${c}-400 text-${c}-100 py-2 px-4 rounded-lg`],
+              ]
+            }
+            const initUnocssRuntime = await import('https://cdn.jsdelivr.net/npm/@unocss/runtime/attributify.global.js')
+
+            const { __unocss_runtime: unoRuntime } = globalThis
+            console.log({unoRuntime, initUnocssRuntime, globalThis})
+             
+            /**
+             * TODO try:
+             * https://github.com/unocss/unocss/tree/main/packages/preset-icons/
+             */
+          })()
+        </script>    
+        <!-- <script  type="module" src="./flex-row.js" async> </script>     -->
       </head>
-      <body>
-            <my-calculator id="calculator">
-            </my-calculator>
+      <body un-cloak>
+        <style>
+          [un-cloak] {
+            display: none;
+          }
+        </style>
+
+        <div un-cloak bg="gray-400" class="h-screen flex flex-col items-center justify-center"> 
+          <cal-culator id="calculator" >
+            <div class="block"  value="1">inside</div>
+          </cal-culator>
+          <br />
+          <flex-row un-cloak classafter="gap-2">
+            <span class="block text-center grow"  value="1">1</span>
+            <span class="block text-center grow"  value="2">2</span>
+            <span class="block text-center grow"  value="3">3</span>
+          </flex-row>
+        </div>
+        
+        <!-- https://github.com/unocss/unocss/tree/main/packages/preset-attributify/ -->
+        <!-- <div un-cloak h="screen" bg="blue-400" flex="~" items="center" justify="center"></div> -->
+
+        <!-- uno.global preset will work with this style (all rules in class): -->
+        <!-- <div un-cloak class="h-screen bg-blue-400 flex items-center justify-center"> -->
+        <!-- <script src="https://cdn.jsdelivr.net/npm/@unocss/runtime/uno.global.js"></script> -->
       </body>
     </html>

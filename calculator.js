@@ -1,8 +1,9 @@
-// calculator.js 
-import { define,html } from 'hybrids';
+let { define, html } = globalThis.hybrids ?? {} // import { define,html } from 'hybrids'; // will be async imported
+
+
 
 function clear_all(host) {
-  host.op0 = 0
+  host.dataop0 = 0
   host.answer = 0
   host.state = ENUM_NONE
   host.inputBuffer = ""
@@ -56,15 +57,15 @@ function docalc(pending,a,b){
 
 function operator(host,event){
   if (host.inputBuffer != "") {
-    host.op0 = parseFloat(host.inputBuffer)
+    host.dataop0 = parseFloat(host.inputBuffer)
     host.inputBuffer = ""
-    host.answer = docalc(host.pending,host.answer,host.op0)
+    host.answer = docalc(host.pending,host.answer,host.dataop0)
     host.previous = host.pending
     if(event.target.value != ENUM_EQU){
-      host.op0 = 0
+      host.dataop0 = 0
     }
   } else if (event.target.value == ENUM_EQU) {
-    host.answer = docalc(host.previous,host.answer,host.op0)
+    host.answer = docalc(host.previous,host.answer,host.dataop0)
   }
   host.pending = event.target.value
 
@@ -102,7 +103,9 @@ const ENUM_NONE    = 0,
       ENUM_EQU    = 6;
 
 const Calculator = {
-  op0 : 0,
+  tag: 'cal-culator',
+  'un-cloak': true,
+  dataop0 : 0,
   answer : 0,
   inputBuffer : "",
   pending : ENUM_NONE,
@@ -159,32 +162,56 @@ const Calculator = {
       grid-template-columns: auto auto auto;
       max-width: 30em;
       min-width: 12em;
-      background: E1E0E0;
+      background: #E1E0E0;
     }
     </style>
     <div class="grid-container">
-    <div class="display">${display}</div>
-    <button class="clear-button"    onclick="${clear_all}">AC</button>
-    <button class="operator-button" onclick="${change_sign}">±</button>
-    <button class="operator-button" onclick=${operator1} value="${ENUM_SQRT}">√</button>
-    <button class="operator-button" onclick=${operator} value="${ENUM_DIVIDE}">÷</button>
-    <button class="number-button"   onclick="${keypad}" value="1">1</button>
-    <button class="number-button"   onclick="${keypad}" value="2">2</button>
-    <button class="number-button"   onclick="${keypad}" value="3">3</button>
-    <button class="operator-button" onclick=${operator} value="${ENUM_MULT}">×</button>
-    <button class="number-button"   onclick="${keypad}" value="4">4</button>
-    <button class="number-button"   onclick="${keypad}" value="5">5</button>
-    <button class="number-button"   onclick="${keypad}"value="6">6</button>
-    <button class="operator-button" onclick=${operator} value="${ENUM_MINUS}">-</button>
-    <button class="number-button"   onclick="${keypad}" value="7">7</button>
-    <button class="number-button"   onclick="${keypad}" value="8">8</button>
-    <button class="number-button"   onclick="${keypad}" value="9">9</button>
-    <button class="operator-button" onclick="${operator}" value="${ENUM_PLUS}">+</button>
-    <button class="number-wide"     onclick="${keypad}" value="0">0</button>
-    <button class="number-button"   onclick="${comma}">.</button>
-    <button class="operator-button" onclick=${operator}  value="${ENUM_EQU}">=</button>
+      <div class="display">${display}</div>
+      <button class="clear-button"    onclick="${clear_all}">AC</button>
+      <button class="operator-button" onclick="${change_sign}">±</button>
+      <button class="operator-button" onclick=${operator1} value="${ENUM_SQRT}">√</button>
+      <button class="operator-button" onclick=${operator} value="${ENUM_DIVIDE}">÷</button>
+
+      <button class="number-button"   onclick="${keypad}" value="1">1</button>
+      <button class="number-button"   onclick="${keypad}" value="2">2</button>
+      <button class="number-button"   onclick="${keypad}" value="3">3</button>
+      <button class="operator-button" onclick=${operator} value="${ENUM_MULT}">×</button>
+
+      <button class="number-button"   onclick="${keypad}" value="4">4</button>
+      <button class="number-button"   onclick="${keypad}" value="5">5</button>
+      <button class="number-button"   onclick="${keypad}"value="6">6</button>
+      <button class="operator-button" onclick=${operator} value="${ENUM_MINUS}">-</button>
+
+      <button class="number-button"   onclick="${keypad}" value="7">7</button>
+      <button class="number-button"   onclick="${keypad}" value="8">8</button>
+      <button class="number-button"   onclick="${keypad}" value="9">9</button>
+      <button class="operator-button" onclick="${operator}" value="${ENUM_PLUS}">+</button>
+      
+      <button class="number-wide"     onclick="${keypad}" value="0">0</button>
+      <button class="number-button"   onclick="${comma}">.</button>
+      <button class="operator-button" onclick=${operator}  value="${ENUM_EQU}">=</button>
     </div>
   `,
 };
 
-define('my-calculator', Calculator);
+if(globalThis.hybrids){
+  // if we already have hybrids do the definition syncronously
+  define(Calculator)
+}
+
+void (async ()=>{
+
+  // console.log(define === globalThis.hybrids?.define, {define, globalThis}, 'before' )
+  
+  if(!globalThis.hybrids){
+    globalThis.hybrids = await import('https://www.unpkg.com/hybrids@8.0.8/src/index.js')
+    console.log('fetch needed in calc')
+    ;( { define, html } =  globalThis.hybrids) // destructuring onto pre initialized vars needs this funny ;(syntax) // https://flaviocopes.com/javascript-destructure-object-to-existing-variable/
+    // console.log({define, globalThis}, define === globalThis.hybrids?.define )
+    define(Calculator)
+  } 
+  
+})()
+
+
+
